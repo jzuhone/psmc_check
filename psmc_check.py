@@ -172,16 +172,6 @@ def main(opt):
         tstart = tnow
 
     # Get temperature telemetry for 3 weeks prior to min(tstart, NOW)
-    # tlm = get_telem_values(min(tstart, tnow),
-    #                        ['1pdeaat','1pin1at',
-    #                         'sim_z', 'aosares1',
-    #                         'dp_dpa_power'],
-    #                        days=opt.days,
-    #                        name_map={'sim_z': 'tscpos',
-    #                                  'aosares1': 'pitch'})
-    #                        days=opt.days,
-    #                        name_map={'sim_z': 'tscpos',
-    #                                  'aosares1': 'pitch'})
     tlm = get_telem_values(min(tstart, tnow),
                            ['1pdeaat','1pin1at',
                             'sim_z', 'aosares1',
@@ -252,9 +242,6 @@ def make_week_predict(opt, tstart, tstop, bs_cmds, tlm, db):
     logger.debug("In make_week_predict")
 
     # Try to make initial state0 from cmd line options
-    # state0 = dict((x, getattr(opt, x))
-    #               for x in ('pitch', 'simpos', 'ccd_count', 'fep_count',
-    #                         'vid_board', 'clocking', 'T_psmc','T_pin1at'))
     state0 = dict((x, getattr(opt, x))
                   for x in ('pitch', 'simpos', 'ccd_count', 'fep_count',
                             'vid_board', 'clocking', 'T_psmc','T_pin1at',
@@ -327,7 +314,7 @@ def make_week_predict(opt, tstart, tstop, bs_cmds, tlm, db):
     logger.info('Reading file of dahtrb commands from file %s' % htrbfn)
     htrb=Ska.Table.read_ascii_table(htrbfn,headerrow=2,headertype='rdb')
     dh_heater_times=Chandra.Time.date2secs(htrb['time'])
-    dh_heater=htrb['dahtbon']
+    dh_heater=htrb['dahtbon'].astype(bool)
 
     # Create array of times at which to calculate PSMC temps, then do it.
     logger.info('Calculating PSMC thermal model')
