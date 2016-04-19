@@ -27,6 +27,8 @@ import Ska.Numpy
 import Ska.engarchive.fetch_sci as fetch
 from Chandra.Time import DateTime
 import Chandra.Time
+from Quaternion import Quat
+import Ska.Sun
 from numpy import ndarray
 
 import Chandra.cmd_states as cmd_states
@@ -211,6 +213,14 @@ def main(opt):
                 plots_validation=plots_validation)
 
 
+def calc_off_nom_rolls(states):
+    off_nom_rolls = []
+    for state in states:
+        att = [state[x] for x in ['q1', 'q2', 'q3', 'q4']]
+        time = (state['tstart'] + state['tstop']) / 2
+        off_nom_rolls.append(Ska.Sun.off_nominal_roll(att, time))
+    return np.array(off_nom_rolls)
+
 def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None, 
                T_pin1at=None,T_pin1at_times=None,
                dh_heater=None,dh_heater_times=None):
@@ -226,7 +236,10 @@ def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None,
     model.comp['sim_z'].set_data(states['simpos'], times)
     #model.comp['eclipse'].set_data(False)
     model.comp['1pdeaat'].set_data(T_psmc, T_psmc_times)
-    model.comp['pin1at'].set_data(T_pin1at,T_pin1at_times);
+    model.comp['pin1at'].set_data(T_pin1at,T_pin1at_times)
+    model.comp['roll'].set_data(calc_off_nom_rolls(states), times)
+    model.comp['eclipse'].set_data(False)
+
     # for name in ('ccd_count', 'fep_count', 'vid_board', 'clocking', 'pitch', 'dh_heater'):
     for name in ('ccd_count', 'fep_count', 'vid_board', 'clocking', 'pitch'):
         model.comp[name].set_data(states[name], times)
