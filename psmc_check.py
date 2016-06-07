@@ -155,30 +155,30 @@ class PSMCModelCheck(ModelCheck):
         state0.update({'T_pin1at': np.mean(tlm['1pdeaat'][ok]) - 10.0 })
         return state0
 
-    def run_model_make_plots(self, opt, states, state0, tstart, tstop, t_msid):
-        # htrbfn='/home/edgar/acis/thermal_models/dhheater_history/dahtbon_history.rdb'
+    def calc_model_wrapper(self, opt, states, tstart, tstop, t_msid, state0=None):
+        # htrbfn='/home/edgar/acis/thermal_models/dhheater_history/dahtbon_history.rdb'                                
         htrbfn='dahtbon_history.rdb'
         logger.info('Reading file of dahtrb commands from file %s' % htrbfn)
         htrb=Ska.Table.read_ascii_table(htrbfn,headerrow=2,headertype='rdb')
         dh_heater_times=Chandra.Time.date2secs(htrb['time'])
         dh_heater=htrb['dahtbon'].astype(bool)
-
-        model = self.calc_model(opt.model_spec, states, state0['tstart'], tstop,
-                                state0[t_msid], None, state0['T_pin1at'], None,
-                                dh_heater,dh_heater_times)
-
-        # Make the limit check plots and data files
-        plt.rc("axes", labelsize=10, titlesize=12)
-        plt.rc("xtick", labelsize=10)
-        plt.rc("ytick", labelsize=10)
-        temps = {self.short_msid: model.comp[self.msid].mvals}
-        plots = self.make_check_plots(opt, states, model.times, temps, tstart)
-        viols = self.make_viols(opt, states, model.times, temps)
-        self.write_states(opt, states)
-        self.write_temps(opt, model.times, temps)
-
-        return dict(opt=opt, states=states, times=model.times, temps=temps,
-                    plots=plots, viols=viols)
+        if state0 is None:
+            start_msid = None
+            start_pin = None
+            dh_heater = None
+            dh_heater_times = None
+        else:
+            start_msid = state0[t_msid]
+            start_pin = state0['T_pin1at']
+            # htrbfn='/home/edgar/acis/thermal_models/dhheater_history/dahtbon_history.rdb'                     
+            htrbfn='dahtbon_history.rdb'
+            logger.info('Reading file of dahtrb commands from file %s' % htrbfn)
+            htrb=Ska.Table.read_ascii_table(htrbfn,headerrow=2,headertype='rdb')
+            dh_heater_times=Chandra.Time.date2secs(htrb['time'])
+            dh_heater=htrb['dahtbon'].astype(bool)
+        return self.calc_model(opt.model_spec, states, tstart, tstop, T_psmc=start_msid,
+                               T_psmc_times=None, T_pin1at=start_pin, T_pin1at_times=None,
+                               dh_heater=dh_heater, dh_heater_times=dh_heater_times)
 
 if __name__ == '__main__':
     opt, args = get_options()
