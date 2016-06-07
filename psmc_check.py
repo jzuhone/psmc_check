@@ -12,22 +12,9 @@ plots comparing predicted values to telemetry for the previous three weeks.
 
 import sys
 import os
-import glob
 import logging
-from pprint import pformat
-import re
-import time
-import shutil
-import pickle
 
 import numpy as np
-import Ska.DBI
-import Ska.Table
-import Ska.Numpy
-import Ska.engarchive.fetch_sci as fetch
-from Chandra.Time import DateTime
-import Chandra.Time
-from Quaternion import Quat
 import Ska.Sun
 from numpy import ndarray
 
@@ -37,11 +24,10 @@ import Chandra.cmd_states as cmd_states
 import matplotlib
 if __name__ == '__main__':
     matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import Ska.Matplotlib
 
 import xija
 
+from model_check import
 MSID = dict(psmc='1PDEAAT', pin='1PIN1AT')
 YELLOW = dict(psmc=55.0,pin=38.0)
 MARGIN = dict(psmc=2.5, pin=2.5)
@@ -721,44 +707,6 @@ def make_check_plots(opt, states, times, temps, tstart):
 
     return plots
 
-
-def get_states(datestart, datestop, db):
-    """Get states exactly covering date range
-
-    :param datestart: start date
-    :param datestop: stop date
-    :param db: database handle
-    :returns: np recarry of states
-    """
-    datestart = DateTime(datestart).date
-    datestop = DateTime(datestop).date
-    logger.info('Getting commanded states between %s - %s' %
-                 (datestart, datestop))
-
-    # Get all states that intersect specified date range
-    cmd = """SELECT * FROM cmd_states
-             WHERE datestop > '%s' AND datestart < '%s'
-             ORDER BY datestart""" % (datestart, datestop)
-    logger.debug('Query command: %s' % cmd)
-    states = db.fetchall(cmd)
-    logger.info('Found %d commanded states' % len(states))
-
-    # Add power columns to states and tlm
-    # states = Ska.Numpy.add_column(states, 'power', get_power(states))
-
-    # Set start and end state date/times to match telemetry span.  Extend the
-    # state durations by a small amount because of a precision issue converting
-    # to date and back to secs.  (The reference tstop could be just over the
-    # 0.001 precision of date and thus cause an out-of-bounds error when
-    # interpolating state values).
-    states[0].tstart = DateTime(datestart).secs - 0.01
-    states[0].datestart = DateTime(states[0].tstart).date
-    states[-1].tstop = DateTime(datestop).secs + 0.01
-    states[-1].datestop = DateTime(states[-1].tstop).date
-
-    return states
-
-
 def make_validation_plots(opt, tlm, db):
     """
     Make validation output plots.
@@ -994,79 +942,6 @@ def make_validation_plots(opt, tlm, db):
     fig.savefig(outfile)
 
     return plots
-
-
-def plot_cxctime(times, y, fig=None, **kwargs):
-    """Make a date plot where the X-axis values are in CXC time.  If no ``fig``
-    value is supplied then the current figure will be used (and created
-    automatically if needed).  Any additional keyword arguments
-    (e.g. ``fmt='b-'``) are passed through to the ``plot_date()`` function.
-
-    :param times: CXC time values for x-axis (date)
-    :param y: y values
-    :param fig: pyplot figure object (optional)
-    :param **kwargs: keyword args passed through to ``plot_date()``
-
-    :rtype: ticklocs, fig, ax = tick locations, figure, and axes object.
-    """
-    if fig is None:
-        fig = plt.gcf()
-
-    ax = fig.gca()
-    import Ska.Matplotlib
-    ax.plot_date(Ska.Matplotlib.cxctime2plotdate(times), y, **kwargs)
-    ticklocs = Ska.Matplotlib.set_time_ticks(ax)
-    fig.autofmt_xdate()
-
-    return ticklocs, fig, ax
-
-
-def get_power(states):
-    """
-    Determine the power value in each state by finding the entry in calibration
-    power table with the same ``fep_count``, ``vid_board``, and ``clocking``
-    values.
-
-    :param states: input states
-    :rtype: numpy array of power corresponding to states
-    """
-
-    # Make a tuple of values that define a unique power state
-    powstate = lambda x: tuple(x[col] for col in ('fep_count', 'vid_board',
-                                                  'clocking'))
-
-    # dpa_power charactestic is a list of 4-tuples (fep_count vid_board
-    # clocking power_avg).  Build a dict to allow access to power_avg for
-    # available (fep_count vid_board clocking) combos.
-    power_states = dict((row[0:3], row[3])
-                        for row in characteristics.dpa_power)
-    try:
-        powers = [power_states[powstate(x)] for x in states]
-    except KeyError:
-        raise ValueError('Unknown power state: %s' % str(powstate(x)))
-
-    return powers
-
-
-def pointpair(x, y=None):
-    if y is None:
-        y = x
-    return np.array([x, y]).reshape(-1, order='F')
-
-
-def globfile(pathglob):
-    """Return the one file name matching ``pathglob``.  Zero or multiple
-    matches raises an IOError exception."""
-
-    files = glob.glob(pathglob)
-    if len(files) == 0:
-        raise IOError('No files matching %s' % pathglob)
-    elif len(files) > 1:
-        raise IOError('Multiple files matching %s' % pathglob)
-    else:
-        return files[0]
-
-
 
 if __name__ == '__main__':
     opt, args = get_options()
