@@ -187,7 +187,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     try:
-        psmc_check = PSMCModelCheck("1deamzt", "dea", MSID,
+        psmc_check = PSMCModelCheck("1pdeaat", "psmc", MSID,
                                     YELLOW, MARGIN, VALIDATION_LIMITS,
                                     HIST_LIMIT, calc_model, VERSION,
                                     other_telem=['1dahtbon'],
