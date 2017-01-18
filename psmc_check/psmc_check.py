@@ -20,7 +20,6 @@ matplotlib.use('Agg')
 import logging
 import Chandra.cmd_states as cmd_states
 from astropy.io import ascii
-import Ska.Numpy
 import Chandra.Time
 import numpy as np
 import xija
@@ -30,7 +29,6 @@ import os
 import sys
 
 script_path = os.path.abspath(os.path.dirname(__file__))
-
 
 MSID = dict(psmc='1PDEAAT')
 YELLOW = dict(psmc=55.0)
