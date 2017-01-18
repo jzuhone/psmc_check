@@ -1,0 +1,5 @@
+build
+dist
+*.pyc
+psmc_check.egg-info
+doc/_build
