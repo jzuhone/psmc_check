@@ -28,7 +28,7 @@ from acis_thermal_check.utils import calc_off_nom_rolls, get_options
 import os
 import sys
 
-script_path = os.path.abspath(os.path.dirname(__file__))
+model_path = os.path.abspath(os.path.dirname(__file__))
 
 MSID = dict(psmc='1PDEAAT')
 YELLOW = dict(psmc=55.0)
@@ -83,8 +83,7 @@ class PSMCModelCheck(ACISThermalCheck):
         else:
             start_msid = state0[t_msid]
             start_pin = state0['T_pin1at']
-            # htrbfn = '/home/edgar/acis/thermal_models/dhheater_history/dahtbon_history.rdb'                     
-            htrbfn = 'dahtbon_history.rdb'
+            htrbfn = os.path.join(opt.oflsdir, 'dahtbon_history.rdb')
             logger.info('Reading file of dahtrb commands from file %s' % htrbfn)
             htrb = ascii.read(htrbfn, format='rdb')
             dh_heater_times = Chandra.Time.date2secs(htrb['time'])
