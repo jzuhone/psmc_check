@@ -105,7 +105,7 @@ psmc_check = PSMCModelCheck("1pdeaat", "psmc", MSID,
 def main():
     dhh_opt = {"type": "int", "default":0,
                "help": "Starting Detector Housing Heater state"}
-    opt, args = get_options("1PDEAAT", "psmc", script_path, 
+    opt, args = get_options("1PDEAAT", "psmc", model_path, 
                             [("dh_heater", dhh_opt)])
     try:
         psmc_check.driver(opt)
