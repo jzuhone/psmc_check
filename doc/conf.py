@@ -159,7 +159,7 @@ html_show_sourcelink = False
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'deadoc'
+htmlhelp_basename = 'psmcdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------

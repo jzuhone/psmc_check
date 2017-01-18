@@ -74,7 +74,7 @@ Option                    Description                        Default
 ========================= ================================== ===================
   --outdir=OUTDIR         Output directory                   out
   --oflsdir=OFLSDIR       Load products OFLS directory       None
-  --model-spec=MODEL_SPEC Model specification file           dea_model_spec.json
+  --model-spec=MODEL_SPEC Model specification file           psmc_model_spec.json
   --days=DAYS             Days of validation data (days)     21
   --run-start=RUN_START   Start time for regression testing  None
   --traceback=TRACEBACK   Enable tracebacks                  True
@@ -117,7 +117,7 @@ Example Invocations
   psmc_check --oflsdir=/data/acis/LoadReviews/2009/MAY1809/oflsb --outdir=out 
   
   psmc_check --oflsdir=/data/acis/LoadReviews/2009/MAY1809/oflsb --simpos=-99616 \
-             --pitch=130.0 --T-dea=22.2 --ccd-count=1 --fep-count=1
+             --pitch=130.0 --T-psmc=22.2 --ccd-count=1 --fep-count=1
 
   psmc_check --outdir=regress2010 --run-start=2010:365 --days=360 --dh_heater=1
   
