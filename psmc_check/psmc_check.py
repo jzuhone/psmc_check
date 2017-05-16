@@ -20,7 +20,7 @@ matplotlib.use('Agg')
 import logging
 import Chandra.cmd_states as cmd_states
 from astropy.io import ascii
-import Chandra.Time
+from Chandra.Time import DateTime, date2secs
 import numpy as np
 import xija
 from acis_thermal_check.main import ACISThermalCheck
@@ -65,30 +65,30 @@ def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None,
 
 class PSMCModelCheck(ACISThermalCheck):
 
-    def set_initial_state(self, tlm, db, t_msid):
-        state0 = cmd_states.get_state0(tlm['date'][-5], db,
-                                           datepar='datestart')
+    def set_initial_state(self, tlm, db):
+        state0 = cmd_states.get_state0(DateTime(tlm['date'][-5]).date, db,
+                                           datepar='datestart', date_margin=-100)
         ok = ((tlm['date'] >= state0['tstart'] - 700) &
               (tlm['date'] <= state0['tstart'] + 700))
-        state0.update({t_msid: np.mean(tlm[self.msid][ok])})
+        state0.update({self.t_msid: np.mean(tlm[self.msid][ok])})
         state0.update({'T_pin1at': np.mean(tlm['1pdeaat'][ok]) - 10.0 })
         return state0
 
-    def calc_model_wrapper(self, opt, states, tstart, tstop, t_msid, state0=None):
+    def calc_model_wrapper(self, oflsdir, model_spec, states, tstart, tstop, state0=None):
         if state0 is None:
             start_msid = None
             start_pin = None
             dh_heater = None
             dh_heater_times = None
         else:
-            start_msid = state0[t_msid]
+            start_msid = state0[self.t_msid]
             start_pin = state0['T_pin1at']
-            htrbfn = os.path.join(opt.oflsdir, 'dahtbon_history.rdb')
+            htrbfn = os.path.join(oflsdir, 'dahtbon_history.rdb')
             logger.info('Reading file of dahtrb commands from file %s' % htrbfn)
             htrb = ascii.read(htrbfn, format='rdb')
-            dh_heater_times = Chandra.Time.date2secs(htrb['time'])
+            dh_heater_times = date2secs(htrb['time'])
             dh_heater = htrb['dahtbon'].astype(bool)
-        return self.calc_model(opt.model_spec, states, tstart, tstop, T_psmc=start_msid,
+        return self.calc_model(model_spec, states, tstart, tstop, T_psmc=start_msid,
                                T_psmc_times=None, T_pin1at=start_pin, T_pin1at_times=None,
                                dh_heater=dh_heater, dh_heater_times=dh_heater_times)
 
