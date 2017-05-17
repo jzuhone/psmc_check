@@ -837,8 +837,8 @@ def make_validation_plots(opt, tlm, db):
 
         # Make quantiles
         if msid == '1pdeaat':
-            ok = (( tlm[msid] > 30.0 ) & good_mask )
-            ok2 =(( tlm[msid] > 40.0 ) & good_mask )
+            ok  = (tlm[msid] > 30.0) & good_mask
+            ok2 = (tlm[msid] > 40.0) & good_mask
         else:
             ok = np.ones(len(tlm[msid]), dtype=bool)
         diff = np.sort(tlm[msid][ok] - pred[msid][ok])
@@ -854,7 +854,7 @@ def make_validation_plots(opt, tlm, db):
             fig.clf()
             ax = fig.gca()
             ax.hist(diff / scale, bins=50, log=(histscale == 'log'))
-            if msid == '1pdeaat':
+            if msid == '1pdeaat' and ok2.any():
                 diff2=np.sort(tlm[msid][ok2] - pred[msid][ok2])
                 ax.hist(diff2 / scale, bins=50, log=(histscale == 'log'),
                         color = 'red')
