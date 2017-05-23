@@ -224,18 +224,22 @@ def calc_off_nom_rolls(states):
 def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None, 
                T_pin1at=None,T_pin1at_times=None,
                dh_heater=None,dh_heater_times=None):
+
     model = xija.XijaModel('psmc', start=start, stop=stop,
                               model_spec=model_spec)
     
-
-    #set fetch to quiet if and only if verbose == 0
+    # set fetch to quiet if and only if verbose == 0
     if opt.verbose == 0:
         xija.logger.setLevel(100);
 
     times = np.array([states['tstart'], states['tstop']])
     model.comp['sim_z'].set_data(states['simpos'], times)
-    #model.comp['eclipse'].set_data(False)
     model.comp['1pdeaat'].set_data(T_psmc, T_psmc_times)
+    # 1PIN1AT is broken, so we set its initial condition
+    # using an offset, which makes sense based on historical
+    # data
+    if T_pin1at is None:
+        T_pin1at = model.comp["1pdeaat"].dvals-10.0
     model.comp['pin1at'].set_data(T_pin1at,T_pin1at_times)
     model.comp['roll'].set_data(calc_off_nom_rolls(states), times)
     model.comp['eclipse'].set_data(False)
@@ -278,11 +282,7 @@ def make_week_predict(opt, tstart, tstop, bs_cmds, tlm, db):
         ok = ((tlm['date'] >= state0['tstart'] - 700) &
               (tlm['date'] <= state0['tstart'] + 700))
         state0.update({'T_psmc': np.mean(tlm['1pdeaat'][ok])})
-        # state0.update({'T_pin1at': np.mean(tlm['1pin1at'][ok]) + 3.0 })
-        state0.update({'T_pin1at': np.mean(tlm['1pdeaat'][ok]) - 10.0 })
-
-        
-
+ 
     # TEMPORARY HACK: core model doesn't actually support predictive
     # active heater yet.  Initial temperature determines active heater
     # state for predictions now.
@@ -335,7 +335,7 @@ def make_week_predict(opt, tstart, tstop, bs_cmds, tlm, db):
     logger.info('state0 at start of calc is\n%s' % (pformat(state0)))
 
     model = calc_model(opt.model_spec, states, state0['tstart'], tstop,
-                       state0['T_psmc'],None,state0['T_pin1at'], None,
+                       state0['T_psmc'],None,state0['T_psmc']-10.0, None,
                        dh_heater,dh_heater_times)
 
     # Make the PSMC limit check plots and data files
@@ -768,6 +768,7 @@ def make_validation_plots(opt, tlm, db):
     :param db: database handle
     :returns: list of plot info including plot file names
     """
+
     outdir = opt.outdir
     start = tlm['date'][0]
     stop = tlm['date'][-1]
