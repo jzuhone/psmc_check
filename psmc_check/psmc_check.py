@@ -53,6 +53,11 @@ def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None,
     model.comp['sim_z'].set_data(states['simpos'], times)
     #model.comp['eclipse'].set_data(False)
     model.comp['1pdeaat'].set_data(T_psmc, T_psmc_times)
+    # 1PIN1AT is broken, so we set its initial condition
+    # using an offset, which makes sense based on historical
+    # data
+    if T_pin1at is None:
+        T_pin1at = model.comp["1pdeaat"].dvals - 10.0
     model.comp['pin1at'].set_data(T_pin1at,T_pin1at_times)
     model.comp['roll'].set_data(calc_off_nom_rolls(states), times)
     model.comp['eclipse'].set_data(False)
@@ -71,7 +76,6 @@ class PSMCModelCheck(ACISThermalCheck):
         ok = ((tlm['date'] >= state0['tstart'] - 700) &
               (tlm['date'] <= state0['tstart'] + 700))
         state0.update({self.t_msid: np.mean(tlm[self.msid][ok])})
-        state0.update({'T_pin1at': np.mean(tlm['1pdeaat'][ok]) - 10.0 })
         return state0
 
     def calc_model_wrapper(self, oflsdir, model_spec, states, tstart, tstop, state0=None):
@@ -82,7 +86,7 @@ class PSMCModelCheck(ACISThermalCheck):
             dh_heater_times = None
         else:
             start_msid = state0[self.t_msid]
-            start_pin = state0['T_pin1at']
+            start_pin = state0[self.t_msid]-10.0 # the infamous pin1at hack
             htrbfn = os.path.join(oflsdir, 'dahtbon_history.rdb')
             logger.info('Reading file of dahtrb commands from file %s' % htrbfn)
             htrb = ascii.read(htrbfn, format='rdb')
