@@ -96,9 +96,6 @@ class PSMCModelCheck(ACISThermalCheck):
                                T_psmc_times=None, T_pin1at=start_pin, T_pin1at_times=None,
                                dh_heater=dh_heater, dh_heater_times=dh_heater_times)
 
-    def write_states(self, opt, states):
-        super(PSMCModelCheck, self).write_states(opt, states, remove_cols=['T_pin1at'])
-
 psmc_check = PSMCModelCheck("1pdeaat", "psmc", MSID,
                             YELLOW, MARGIN, VALIDATION_LIMITS,
                             HIST_LIMIT, calc_model,
