@@ -107,14 +107,13 @@ psmc_check = PSMCModelCheck("1pdeaat", "psmc", MSID,
                             other_opts=['dh_heater'])
 
 def main():
-    dhh_opt = {"type": "int", "default":0,
+    dhh_opt = {"type": int, "default": 0,
                "help": "Starting Detector Housing Heater state"}
-    opt, args = get_options("1PDEAAT", "psmc", model_path, 
-                            [("dh_heater", dhh_opt)])
+    args = get_options("1PDEAAT", "psmc", model_path, [("dh_heater", dhh_opt)])
     try:
-        psmc_check.driver(opt)
+        psmc_check.driver(args)
     except Exception as msg:
-        if opt.traceback:
+        if args.traceback:
             raise
         else:
             print("ERROR:", msg)
