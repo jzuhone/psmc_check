@@ -17,21 +17,25 @@ from __future__ import print_function
 import matplotlib
 matplotlib.use('Agg')
 
-import logging
-import Chandra.cmd_states as cmd_states
 from astropy.io import ascii
-from Chandra.Time import DateTime, date2secs
+from Chandra.Time import date2secs
 import numpy as np
 import xija
-from acis_thermal_check.main import ACISThermalCheck
-from acis_thermal_check.utils import calc_off_nom_rolls, get_options
+from acis_thermal_check import \
+    ACISThermalCheck, \
+    calc_off_nom_rolls, \
+    get_options, \
+    state_builders, \
+    get_acis_limits
 import os
 import sys
 
 model_path = os.path.abspath(os.path.dirname(__file__))
 
+yellow_hi, red_hi = get_acis_limits("1dpamzt")
+
 MSID = dict(psmc='1PDEAAT')
-YELLOW = dict(psmc=55.0)
+YELLOW = dict(psmc=yellow_hi)
 MARGIN = dict(psmc=2.5)
 VALIDATION_LIMITS = {'1PDEAAT': [(1, 2.5),
                                  (50, 1.0),
@@ -42,8 +46,6 @@ VALIDATION_LIMITS = {'1PDEAAT': [(1, 2.5),
                                 (99, 2.5)]
                      }
 HIST_LIMIT = [30., 40.]
-
-logger = logging.getLogger('psmc_check')
 
 def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None,
                T_pin1at=None,T_pin1at_times=None,
@@ -70,15 +72,7 @@ def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None,
 
 class PSMCModelCheck(ACISThermalCheck):
 
-    def set_initial_state(self, tlm, db):
-        state0 = cmd_states.get_state0(DateTime(tlm['date'][-5]).date, db,
-                                           datepar='datestart', date_margin=-100)
-        ok = ((tlm['date'] >= state0['tstart'] - 700) &
-              (tlm['date'] <= state0['tstart'] + 700))
-        state0.update({self.t_msid: np.mean(tlm[self.msid][ok])})
-        return state0
-
-    def calc_model_wrapper(self, oflsdir, model_spec, states, tstart, tstop, state0=None):
+    def calc_model_wrapper(self, model_spec, states, tstart, tstop, state0=None):
         if state0 is None:
             start_msid = None
             start_pin = None
@@ -87,8 +81,8 @@ class PSMCModelCheck(ACISThermalCheck):
         else:
             start_msid = state0[self.t_msid]
             start_pin = state0[self.t_msid]-10.0 # the infamous pin1at hack
-            htrbfn = os.path.join(oflsdir, 'dahtbon_history.rdb')
-            logger.info('Reading file of dahtrb commands from file %s' % htrbfn)
+            htrbfn = os.path.join(self.bsdir, 'dahtbon_history.rdb')
+            self.logger.info('Reading file of dahtrb commands from file %s' % htrbfn)
             htrb = ascii.read(htrbfn, format='rdb')
             dh_heater_times = date2secs(htrb['time'])
             dh_heater = htrb['dahtbon'].astype(bool)
@@ -96,17 +90,14 @@ class PSMCModelCheck(ACISThermalCheck):
                                T_psmc_times=None, T_pin1at=start_pin, T_pin1at_times=None,
                                dh_heater=dh_heater, dh_heater_times=dh_heater_times)
 
-psmc_check = PSMCModelCheck("1pdeaat", "psmc", MSID,
-                            YELLOW, MARGIN, VALIDATION_LIMITS,
-                            HIST_LIMIT, calc_model,
-                            other_telem=['1dahtbon'],
-                            other_map={'1dahtbon': 'dh_heater'},
-                            other_opts=['dh_heater'])
-
 def main():
-    dhh_opt = {"type": int, "default": 0,
-               "help": "Starting Detector Housing Heater state"}
-    args = get_options("1PDEAAT", "psmc", model_path, [("dh_heater", dhh_opt)])
+    args = get_options("psmc", model_path)
+    psmc_check = PSMCModelCheck("1pdeaat", "psmc",
+                                state_builders[args.state_builder], MSID,
+                                YELLOW, MARGIN, VALIDATION_LIMITS,
+                                HIST_LIMIT, calc_model,
+                                other_telem=['1dahtbon'],
+                                other_map={'1dahtbon': 'dh_heater'})
     try:
         psmc_check.driver(args)
     except Exception as msg:
