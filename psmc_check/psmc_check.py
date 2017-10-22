@@ -36,7 +36,7 @@ yellow_hi, red_hi = get_acis_limits("1pdeaat")
 
 MSID = {"psmc":'1PDEAAT'}
 YELLOW = {"psmc": yellow_hi}
-MARGIN = {"psmc": 2.5}
+MARGIN = {"psmc": 4.5}
 VALIDATION_LIMITS = {'1PDEAAT': [(1, 2.5), (50, 1.0), (99, 5.5)],
                      'PITCH': [(1, 3.0), (99, 3.0)],
                      'TSCPOS': [(1, 2.5), (99, 2.5)]
