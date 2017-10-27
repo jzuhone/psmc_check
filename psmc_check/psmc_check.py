@@ -25,8 +25,8 @@ from acis_thermal_check import \
     ACISThermalCheck, \
     calc_off_nom_rolls, \
     get_options, \
-    state_builders, \
-    get_acis_limits
+    make_state_builder, \
+    get_acis_limits, mylog
 import os
 import sys
 
@@ -75,10 +75,10 @@ class PSMCModelCheck(ACISThermalCheck):
             dh_heater = None
             dh_heater_times = None
         else:
-            start_msid = state0[self.t_msid]
-            start_pin = state0[self.t_msid]-10.0 # the infamous pin1at hack
+            start_msid = state0[self.msid]
+            start_pin = state0[self.msid]-10.0 # the infamous pin1at hack
             htrbfn = os.path.join(self.bsdir, 'dahtbon_history.rdb')
-            self.logger.info('Reading file of dahtrb commands from file %s' % htrbfn)
+            mylog.info('Reading file of dahtrb commands from file %s' % htrbfn)
             htrb = ascii.read(htrbfn, format='rdb')
             dh_heater_times = date2secs(htrb['time'])
             dh_heater = htrb['dahtbon'].astype(bool)
@@ -88,14 +88,14 @@ class PSMCModelCheck(ACISThermalCheck):
 
 def main():
     args = get_options("psmc", model_path)
-    psmc_check = PSMCModelCheck("1pdeaat", "psmc",
-                                state_builders[args.state_builder], MSID,
-                                YELLOW, MARGIN, VALIDATION_LIMITS,
+    state_builder = make_state_builder(args.state_builder, args)
+    psmc_check = PSMCModelCheck("1pdeaat", "psmc", MSID, YELLOW,
+                                MARGIN, VALIDATION_LIMITS,
                                 HIST_LIMIT, calc_model,
                                 other_telem=['1dahtbon'],
                                 other_map={'1dahtbon': 'dh_heater'})
     try:
-        psmc_check.driver(args)
+        psmc_check.driver(args, state_builder)
     except Exception as msg:
         if args.traceback:
             raise
