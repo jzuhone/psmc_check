@@ -66,7 +66,7 @@ def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None,
     model.calc()
     return model
 
-class PSMCModelCheck(ACISThermalCheck):
+class PSMCCheck(ACISThermalCheck):
 
     def calc_model_wrapper(self, model_spec, states, tstart, tstop, state0=None):
         if state0 is None:
@@ -89,11 +89,10 @@ class PSMCModelCheck(ACISThermalCheck):
 def main():
     args = get_options("psmc", model_path)
     state_builder = make_state_builder(args.state_builder, args)
-    psmc_check = PSMCModelCheck("1pdeaat", "psmc", MSID, YELLOW,
-                                MARGIN, VALIDATION_LIMITS,
-                                HIST_LIMIT, calc_model,
-                                other_telem=['1dahtbon'],
-                                other_map={'1dahtbon': 'dh_heater'})
+    psmc_check = PSMCCheck("1pdeaat", "psmc", MSID, YELLOW,
+                           MARGIN, VALIDATION_LIMITS, HIST_LIMIT, 
+                           calc_model, other_telem=['1dahtbon'],
+                           other_map={'1dahtbon': 'dh_heater'})
     try:
         psmc_check.driver(args, state_builder)
     except Exception as msg:
