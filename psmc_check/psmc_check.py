@@ -24,19 +24,13 @@ import xija
 from acis_thermal_check import \
     ACISThermalCheck, \
     calc_off_nom_rolls, \
-    get_options, \
-    make_state_builder, \
-    get_acis_limits, mylog
+    get_options, mylog
 import os
 import sys
 
 model_path = os.path.abspath(os.path.dirname(__file__))
 
-yellow_hi, red_hi = get_acis_limits("1pdeaat")
-
-MSID = {"psmc":'1PDEAAT'}
-YELLOW = {"psmc": yellow_hi}
-MARGIN = {"psmc": 4.5}
+MSID = {"psmc": '1PDEAAT'}
 VALIDATION_LIMITS = {'1PDEAAT': [(1, 2.5), (50, 1.0), (99, 5.5)],
                      'PITCH': [(1, 3.0), (99, 3.0)],
                      'TSCPOS': [(1, 2.5), (99, 2.5)]
@@ -88,13 +82,12 @@ class PSMCCheck(ACISThermalCheck):
 
 def main():
     args = get_options("psmc", model_path)
-    state_builder = make_state_builder(args.state_builder, args)
-    psmc_check = PSMCCheck("1pdeaat", "psmc", MSID, YELLOW,
-                           MARGIN, VALIDATION_LIMITS, HIST_LIMIT, 
-                           calc_model, other_telem=['1dahtbon'],
+    psmc_check = PSMCCheck("1pdeaat", "psmc", MSID, 
+                           VALIDATION_LIMITS, HIST_LIMIT, 
+                           calc_model, args, other_telem=['1dahtbon'],
                            other_map={'1dahtbon': 'dh_heater'})
     try:
-        psmc_check.driver(args, state_builder)
+        psmc_check.driver()
     except Exception as msg:
         if args.traceback:
             raise
