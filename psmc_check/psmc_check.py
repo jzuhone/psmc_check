@@ -69,7 +69,7 @@ def main():
                                   calc_model, args, other_telem=['1dahtbon'],
                                   other_map={'1dahtbon': 'dh_heater'})
     try:
-        psmc_check.driver()
+        psmc_check.run()
     except Exception as msg:
         if args.traceback:
             raise
