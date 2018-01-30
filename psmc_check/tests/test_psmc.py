@@ -10,5 +10,4 @@ psmc_rt = RegressionTester("1pdeaat", "psmc", model_path, VALIDATION_LIMITS,
                            HIST_LIMIT, calc_model, atc_kwargs=atc_kwargs)
 
 def test_psmc_loads(answer_store):
-    psmc_rt.run_test_arrays([VALIDATION_LIMITS, HIST_LIMIT, calc_model],
-                            answer_store)
+    psmc_rt.run_test_arrays(answer_store)
