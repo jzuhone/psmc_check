@@ -1,12 +1,14 @@
-from ..psmc_check import psmc_check, model_path
+from ..psmc_check import VALIDATION_LIMITS, \
+    HIST_LIMIT, calc_model, model_path
 from acis_thermal_check.regression_testing import \
-    load_test_template
-import os
+    RegressionTester
 
-default_model_spec = os.path.join(model_path, "psmc_model_spec.json")
+atc_kwargs = {"other_telem": ['1dahtbon'],
+              "other_map": {'1dahtbon': 'dh_heater'}}
 
-def test_psmc_may3016(answer_store):
-    run_start = "2016:122:12:00:00.000"
-    load_week = "MAY3016"
-    load_test_template("1pdeaat", "psmc", answer_store, run_start,
-                       load_week, default_model_spec, psmc_check)
+psmc_rt = RegressionTester("1pdeaat", "psmc", model_path, VALIDATION_LIMITS,
+                           HIST_LIMIT, calc_model, atc_kwargs=atc_kwargs)
+
+def test_psmc_loads(answer_store):
+    psmc_rt.run_test_arrays([VALIDATION_LIMITS, HIST_LIMIT, calc_model],
+                            answer_store)
