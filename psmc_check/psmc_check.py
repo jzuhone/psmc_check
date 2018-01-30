@@ -17,8 +17,6 @@ from __future__ import print_function
 import matplotlib
 matplotlib.use('Agg')
 
-from astropy.io import ascii
-from Chandra.Time import date2secs
 import numpy as np
 import xija
 from acis_thermal_check import \
@@ -30,7 +28,6 @@ import sys
 
 model_path = os.path.abspath(os.path.dirname(__file__))
 
-MSID = {"psmc": '1PDEAAT'}
 VALIDATION_LIMITS = {'1PDEAAT': [(1, 2.5), (50, 1.0), (99, 5.5)],
                      'PITCH': [(1, 3.0), (99, 3.0)],
                      'TSCPOS': [(1, 2.5), (99, 2.5)]
@@ -64,8 +61,7 @@ def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None,
 
 def main():
     args = get_options("psmc", model_path)
-    psmc_check = ACISThermalCheck("1pdeaat", "psmc", MSID, 
-                                  VALIDATION_LIMITS, HIST_LIMIT, 
+    psmc_check = ACISThermalCheck("1pdeaat", "psmc", VALIDATION_LIMITS, HIST_LIMIT,
                                   calc_model, args, other_telem=['1dahtbon'],
                                   other_map={'1dahtbon': 'dh_heater'})
     try:
