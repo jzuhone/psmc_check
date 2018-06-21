@@ -12,8 +12,8 @@ weeks.
 """
 from __future__ import print_function
 
-# Matplotlib setup                                                                                                                                              
-# Use Agg backend for command-line (non-interactive) operation                                                                                                   
+# Matplotlib setup
+# Use Agg backend for command-line (non-interactive) operation
 import matplotlib
 matplotlib.use('Agg')
 
@@ -22,17 +22,17 @@ import xija
 from acis_thermal_check import \
     ACISThermalCheck, \
     calc_off_nom_rolls, \
-    get_options, mylog
+    get_options
 import os
 import sys
 
 model_path = os.path.abspath(os.path.dirname(__file__))
 
-VALIDATION_LIMITS = {'1PDEAAT': [(1, 2.5), (50, 1.0), (99, 5.5)],
+validation_limits = {'1PDEAAT': [(1, 2.5), (50, 1.0), (99, 5.5)],
                      'PITCH': [(1, 3.0), (99, 3.0)],
                      'TSCPOS': [(1, 2.5), (99, 2.5)]
                      }
-HIST_LIMIT = [30., 40.]
+hist_limit = [30., 40.]
 
 def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None,
                dh_heater=None, dh_heater_times=None):
@@ -61,7 +61,7 @@ def calc_model(model_spec, states, start, stop, T_psmc=None, T_psmc_times=None,
 
 def main():
     args = get_options("psmc", model_path)
-    psmc_check = ACISThermalCheck("1pdeaat", "psmc", VALIDATION_LIMITS, HIST_LIMIT,
+    psmc_check = ACISThermalCheck("1pdeaat", "psmc", validation_limits, hist_limit,
                                   calc_model, args, other_telem=['1dahtbon'],
                                   other_map={'1dahtbon': 'dh_heater'})
     try:
