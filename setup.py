@@ -8,7 +8,8 @@ url = 'https://github.com/acisops/psmc_check/tarball/{}'.format(__version__)
 
 setup(name='psmc_check',
       packages=["psmc_check"],
-      version=__version__,
+      use_scm_version=True,
+      setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
       description='ACIS Thermal Model for 1PDEAAT',
       author='John ZuHone',
       author_email='jzuhone@gmail.com',
