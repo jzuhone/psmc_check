@@ -13,11 +13,5 @@ setup(name='psmc_check',
       author_email='jzuhone@gmail.com',
       url='http://github.com/acisops/psmc_check',
       include_package_data=True,
-      classifiers=[
-          'Intended Audience :: Science/Research',
-          'Operating System :: OS Independent',
-          'Programming Language :: Python :: 2.7',
-          'Programming Language :: Python :: 3.5',
-      ],
       entry_points=entry_points,
       )
