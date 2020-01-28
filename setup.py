@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 from setuptools import setup
-from psmc_check import __version__
 
 entry_points = {'console_scripts': 'psmc_check = psmc_check.psmc_check:main'}
 
-url = 'https://github.com/acisops/psmc_check/tarball/{}'.format(__version__)
 
 setup(name='psmc_check',
       packages=["psmc_check"],
@@ -14,7 +12,6 @@ setup(name='psmc_check',
       author='John ZuHone',
       author_email='jzuhone@gmail.com',
       url='http://github.com/acisops/psmc_check',
-      download_url=url,
       include_package_data=True,
       classifiers=[
           'Intended Audience :: Science/Research',
