@@ -3,7 +3,6 @@ from setuptools import setup
 
 entry_points = {'console_scripts': 'psmc_check = psmc_check.psmc_check:main'}
 
-
 setup(name='psmc_check',
       packages=["psmc_check"],
       use_scm_version=True,
