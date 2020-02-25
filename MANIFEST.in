@@ -1,1 +1,2 @@
 include psmc_check/psmc_model_spec.json
+include psmc_check/psmc_check/tests/answers/*

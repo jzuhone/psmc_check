@@ -38,7 +38,8 @@ class PSMCCheck(ACISThermalCheck):
                                         other_map={'1dahtbon': 'dh_heater'})
 
 
-def main(args):
+def main():
+    args = get_options("psmc", model_path)
     psmc_check = PSMCCheck()
     try:
         psmc_check.run(args)
@@ -51,5 +52,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    args = get_options("psmc", model_path)
-    main(args)
+    main()
