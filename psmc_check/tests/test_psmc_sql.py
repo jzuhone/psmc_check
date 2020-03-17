@@ -5,7 +5,7 @@ import pytest
 
 psmc_rt = RegressionTester(PSMCCheck, model_path, "psmc_test_spec.json")
 
-# ACIS state builder tests
+# SQL state builder tests
 
 psmc_rt.run_models(state_builder='sql')
 
