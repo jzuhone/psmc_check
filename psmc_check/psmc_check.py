@@ -37,6 +37,16 @@ class PSMCCheck(ACISThermalCheck):
                                         hist_limit, other_telem=['1dahtbon'],
                                         other_map={'1dahtbon': 'dh_heater'})
 
+    def _calc_model_supp(self, model, state_times, states, ephem, state0):
+        # 1PIN1AT is broken, so we set its initial condition
+        # using an offset, which makes sense based on historical
+        # data
+        if state0 is None:
+            T_pin1at = model.comp["1pdeaat"].dvals - 10.0
+        else:
+            T_pin1at = state0["1pdeaat"] - 10.0
+        model.comp['pin1at'].set_data(T_pin1at, model.times)
+
 
 def main():
     args = get_options("psmc", model_path)
