@@ -10,7 +10,6 @@ PSMC temperature 1PDEAAT.  It also generates PSMC model validation
 plots comparing predicted values to telemetry for the previous three
 weeks.
 """
-from __future__ import print_function
 
 # Matplotlib setup
 # Use Agg backend for command-line (non-interactive) operation
