@@ -4,3 +4,6 @@ dist
 psmc_check.egg-info
 doc/_build
 *~
+psmc_check/tests/answers/*/*[.png, .csv, .css]
+psmc_check/tests/answers/*/index.*
+psmc_check/tests/answers/*/run.dat
