@@ -13,7 +13,7 @@
     ],
     "run_start": "2020:041:00:20:02.553",
     "limits": {
-        "yellow_hi": 51.5,
-        "plan_limit_hi": 47.0
+        "yellow_hi_limit": 51.5,
+        "plan_hi_limit": 47.0
     }
 }
