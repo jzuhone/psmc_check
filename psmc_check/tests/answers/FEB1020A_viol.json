@@ -15,5 +15,9 @@
     "limits": {
         "yellow_hi_limit": 51.5,
         "plan_hi_limit": 47.0
-    }
+    },
+    "duration": [
+        "10.17",
+        "17.38"
+    ]
 }
